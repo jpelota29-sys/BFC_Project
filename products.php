@@ -83,11 +83,15 @@ while ($row = $result->fetch_assoc()) {
                 <img src="<?= $product['image'] ?>" alt="<?= $product['product_name'] ?>">
                 <h2><?= $product['product_name'] ?></h2>
                 <p><?= $product['description'] ?></p>
+
                 <button class="add-to-cart"
-                        data-name="<?= $product['product_name'] ?>"
-                        data-price="<?= $product['price'] ?>">
-                    Add to Cart
-                </button>
+                   data-id="<?= $product['product_id'] ?>"
+                   data-name="<?= $product['product_name'] ?>"
+                   data-price="<?= $product['price'] ?>">
+                  Add to Cart
+                  </button>
+
+
             </div>
         <?php endforeach; ?>
       <?php endforeach; ?>
@@ -101,6 +105,42 @@ while ($row = $result->fetch_assoc()) {
       <button class="close-cart">Close</button>
     </div>
 
+    <!-- Checkout Modal -->
+<div class="checkout-modal" id="checkoutModal">
+  <div class="checkout-content">
+    <span class="close-checkout">&times;</span>
+    <h2>Checkout</h2>
+
+    <form id="checkoutForm">
+      <h3>Customer Information</h3>
+      <label for="customerName">Name:</label>
+      <input type="text" id="customerName" name="customerName" required>
+
+      <label for="customerEmail">Email:</label>
+      <input type="email" id="customerEmail" name="customerEmail" required>
+
+      <label for="customerPhone">Phone:</label>
+      <input type="text" id="customerPhone" name="customerPhone" required>
+
+      <h3>Order Summary</h3>
+      <ul class="checkout-items"></ul>
+      <p>Total: <span class="checkout-total">₱0.00</span></p>
+
+      <h3>Payment Method</h3>
+      <select id="paymentMethod" name="paymentMethod" required>
+        <option value="">Select Payment</option>
+        <option value="cash">Cash</option>
+        <option value="gcash">GCash</option>
+        <option value="credit">Credit Card</option>
+      </select>
+
+      <button type="submit" class="checkout-submit">Confirm & Pay</button>
+    </form>
+  </div>
+</div>
+
+    
+
   <button class="open-cart">🛒 View Cart</button>
     
 
@@ -112,7 +152,6 @@ while ($row = $result->fetch_assoc()) {
   </footer>
 
   <script src="script.js"></script>
-
 
 </body>
 </html>
