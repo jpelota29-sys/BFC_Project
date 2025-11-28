@@ -26,6 +26,7 @@ while ($row = $result->fetch_assoc()) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BUT FIRST, COFFEE | Products</title>
   <link rel="stylesheet" href="products.css">
+  <link rel="stylesheet" href="login-signup_Modal.css">
 </head>
 
 <body>
@@ -33,13 +34,14 @@ while ($row = $result->fetch_assoc()) {
   <!-- Navigation Bar -->
   <nav class="navbar">
     <div class="logo">
-      <a href="index.php"><img src="/image/OIP.jpg" alt="Logo"></a>
+      <a href="index.php"><img src="image/OIP.jpg" alt="Logo"></a>
     </div>
     <div class="nav-links">
       <a href="index.php">Home</a>
       <a href="products.php" class="active">Products</a>
-      <a href="#About Us">About Us</a>
+      <a href="index.php #about">About Us</a>
       <a href="#contact">Contact</a>
+      <a href="#" id="openLogin">Login</a>
     </div>
   </nav>
 
@@ -146,12 +148,76 @@ while ($row = $result->fetch_assoc()) {
 
   </div>
 
+        <!-- LOGIN MODAL -->
+      <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <span class="close" data-close="loginModal">&times;</span>
+            <h2>Login</h2>
+
+            <form action="login.php" method="POST" class="modal-form">
+            <label>Email</label>
+            <input type="email" name="email" required>
+
+            <label>Password</label>
+            <input type="password" name="password" required>
+
+            <button type="submit" class="modal-btn">Login</button>
+
+            <p class="switch-text">
+                Don't have an account? 
+                <a href="#" id="openSignupFromLogin">Sign Up</a>
+            </p>
+            </form>
+        </div>
+      </div>
+
+      <!-- SIGNUP MODAL -->
+      <div class="modal" id="signupModal">
+        <div class="modal-content">
+            <span class="close" data-close="signupModal">&times;</span>
+            <h2>Create Account</h2>
+
+            <form id="signupForm" action="register.php" method="POST" class="modal-form">
+
+                <label>Username</label>
+                <input type="text" name="username" placeholder="Enter your username" required>
+
+                <label>Contact Number</label>
+                <input type="text" id="contactNumber" name="contact" maxlength="11" 
+                      placeholder="11-digit mobile number (e.g., 09123456789)" required>
+                <small id="contactError" style="color:red; display:none;">Contact number must be exactly 11 digits.</small>
+
+                <label>Address</label>
+                <input type="text" id="addressField" name="address" 
+                      placeholder="House No., Street, Barangay, City" required>
+                <small id="addressError" style="color:red; display:none;">
+                    Address can only contain letters, numbers, spaces, commas, periods, and hyphens.
+                </small>
+
+                <label>Email</label>
+                <input type="email" name="email" placeholder="example@email.com" required>
+
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Enter your password" required>
+
+                <button type="submit" class="modal-btn">Sign Up</button>
+
+                <p class="switch-text">
+                    Already have an account? 
+                    <a href="#" id="openLoginFromSignup">Login</a>
+                </p>
+            </form>
+        </div>
+      </div>
+
   <!-- Footer -->
   <footer>
     <p>© 2025 CHOCOCRAVE | Indulge in Sweet Cravings</p>
   </footer>
 
   <script src="script.js"></script>
+  <script src="login-signup_Modal.js"></script>
 
 </body>
 </html>
+
