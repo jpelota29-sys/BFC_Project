@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Butfirst, Coffee | Your Greater Start</title>
     <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="login-signup_Modal.css">
 
     <style>
         /* ==========================================================
@@ -63,34 +64,25 @@
 </head>
 <body>
 
-   <!-- Navigation Bar -->
-<nav class="navbar">
-  <div class="logo">
-    <a href="index.php">
-      <img src="image/OIP.jpg" alt="Butfirst Logo">
-    </a>
-  </div>
-
-  <!-- Hamburger icon -->
-  <div class="menu-toggle" id="menu-toggle">
-    &#9776;
-  </div>
-
-  <div class="nav-links" id="nav-links">
-    <a href="index.php">Home</a>
-    <a href="products.php">Products</a>
-    <a href="#about">About Us</a>
-    <a href="#contact">Contact</a>
-  </div>
-</nav>
-
+<!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="logo">
+      <a href="index.php"><img src="image/OIP.jpg" alt="Logo"></a>
+    </div>
+    <div class="nav-links">
+      <a href="index.php">Home</a>
+      <a href="products.php" class="active">Products</a>
+      <a href="index.php #about">About Us</a>
+      <a href="index.php #contact">Contact</a>
+      <a href="#" id="openLogin">Login</a>
+    </div>
+  </nav>
 
     <!-- Welcome Section -->
     <section class="welcome-section" id="home">
         <h1>BUT FIRST, COFFEE</h1>
         <p>“Your Greater Start”</p>
         <a href="products.php" class="shop-btn">Order Now</a>
-        
     </section>
 
     <!-- Products Section -->
@@ -99,19 +91,19 @@
         <div class="product-cards">
 
             <div class="card">
-                <img src="../Finish Product/Spanish Latte.jpg" alt="Spanish-Latte">
+                <img src="finish_product/Spanish Latte.jpg" alt="Spanish-Latte">
                 <h3>Spanish Latte</h3>
                 <p>Where bold espresso meets creamy condensed milk—every sip feels like a hug.</p>
             </div>
 
             <div class="card">
-                <img src="../Finish Product/Black forest.jpg" alt="Black Forest Cake">
+                <img src="finish_product/Black forest.jpg" alt="Black Forest Cake">
                 <h3>Black Forest Cake</h3>
                 <p>Layers of chocolatey goodness with a cherry on top.</p>
             </div>
 
             <div class="card">
-                <img src="/Finish Product/Auro.jpg" alt="Auro choco Butter-Scotch">
+                <img src="finish_product/Auro.jpg" alt="Auro choco Butter-Scotch">
                 <h3>Auro Choco Butter-Scotch</h3>
                 <p>Sweet, creamy, and oh-so-decadent! Chocolate and butterscotch in perfect harmony..</p>
             </div>
@@ -137,11 +129,76 @@
         </p>
     </section>
 
+     <!-- LOGIN MODAL -->
+      <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <span class="close" data-close="loginModal">&times;</span>
+            <h2>Login</h2>
+
+            <form action="auth.php" method="POST" class="modal-form">
+            <input type="hidden" name="action" value="login">
+            <label>Email</label>
+            <input type="email" name="email" required>
+
+            <label>Password</label>
+            <input type="password" name="password" required>
+
+            <button type="submit" class="modal-btn">Login</button>
+
+            <p class="switch-text">
+                Don't have an account? 
+                <a href="#" id="openSignupFromLogin">Sign Up</a>
+            </p>
+            </form>
+        </div>
+      </div>
+
+      <!-- SIGNUP MODAL -->
+      <div class="modal" id="signupModal">
+        <div class="modal-content">
+            <span class="close" data-close="signupModal">&times;</span>
+            <h2>Create Account</h2>
+
+            <form id="signupForm" action="auth.php" method="POST" class="modal-form">
+              <input type="hidden" name="action" value="register">
+
+                <label>Username</label>
+                <input type="text" name="username" placeholder="Enter your username" required>
+
+                <label>Contact Number</label>
+                <input type="text" id="contactNumber" name="contact" maxlength="11" 
+                      placeholder="11-digit mobile number (e.g., 09123456789)" required>
+                <small id="contactError" style="color:red; display:none;">Contact number must be exactly 11 digits.</small>
+
+                <label>Address</label>
+                <input type="text" id="addressField" name="address" 
+                      placeholder="House No., Street, Barangay, City" required>
+                <small id="addressError" style="color:red; display:none;">
+                    Address can only contain letters, numbers, spaces, commas, periods, and hyphens.
+                </small>
+
+                <label>Email</label>
+                <input type="email" name="email" placeholder="example@email.com" required>
+
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Enter your password" required>
+
+                <button type="submit" class="modal-btn">Sign Up</button>
+
+                <p class="switch-text">
+                    Already have an account? 
+                    <a href="#" id="openLoginFromSignup">Login</a>
+                </p>
+            </form>
+        </div>
+      </div>
+
     <!-- Footer -->
     <footer>
         <p>© 2025 BUTFIRST, COFFEE | YOUR GREATER START</p>
     </footer>
 
     <script src="Toggle.js"></script>
+    <script src="login-signup_Modal.js"></script>
 </body>
 </html>

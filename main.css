@@ -1,6 +1,10 @@
 /* ==========================================================
    RESET & BASE STYLES
    ========================================================== */
+html{
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -8,14 +12,12 @@ body {
   background-color: #fff7e6;
   color: #3a1f04;
   box-sizing: border-box;
-  width: 100%;
 }
 
 /* ==========================================================
    NAVBAR
    ========================================================== */
 .navbar {
-  width: 100%;
   height: 120px;
   background-color: #fbd07a;
   display: flex;

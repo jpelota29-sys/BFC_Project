@@ -19,6 +19,15 @@ while ($row = $result->fetch_assoc()) {
 }
 ?>
 
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    echo "<script>alert('Please login first.'); window.location='index.php';</script>";
+    exit;
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,11 +36,12 @@ while ($row = $result->fetch_assoc()) {
   <title>BUT FIRST, COFFEE | Products</title>
   <link rel="stylesheet" href="products.css">
   <link rel="stylesheet" href="login-signup_Modal.css">
+  
 </head>
 
 <body>
 
-  <!-- Navigation Bar -->
+<!-- Navigation Bar -->
   <nav class="navbar">
     <div class="logo">
       <a href="index.php"><img src="image/OIP.jpg" alt="Logo"></a>
@@ -40,7 +50,7 @@ while ($row = $result->fetch_assoc()) {
       <a href="index.php">Home</a>
       <a href="products.php" class="active">Products</a>
       <a href="index.php #about">About Us</a>
-      <a href="#contact">Contact</a>
+      <a href="index.php #contact">Contact</a>
       <a href="#" id="openLogin">Login</a>
     </div>
   </nav>
@@ -77,27 +87,23 @@ while ($row = $result->fetch_assoc()) {
 
 
     <!-- Product Details (shown when clicked) -->
-     
-    <section class="product-details">
-      <?php foreach ($categories as $categoryName => $products): ?>
-        <?php foreach ($products as $product): ?>
-            <div id="<?= $product['product_id'] ?>" class="details-box">
-                <img src="<?= $product['image'] ?>" alt="<?= $product['product_name'] ?>">
-                <h2><?= $product['product_name'] ?></h2>
-                <p><?= $product['description'] ?></p>
-
-                <button class="add-to-cart"
-                   data-id="<?= $product['product_id'] ?>"
-                   data-name="<?= $product['product_name'] ?>"
-                   data-price="<?= $product['price'] ?>">
-                  Add to Cart
+      <section class="product-details">
+        <?php foreach ($categories as $categoryName => $products): ?>
+          <?php foreach ($products as $product): ?>
+              <div id="<?= $product['product_id'] ?>" class="details-box">
+                  <button class="close-details" style="position: absolute; top:5px; right: 5px;">✖</button>
+                  <img src="<?= $product['image'] ?>" alt="<?= $product['product_name'] ?>">
+                  <h2><?= $product['product_name'] ?></h2>
+                  <p><?= $product['description'] ?></p>
+                  <button class="add-to-cart"
+                          data-name="<?= $product['product_name'] ?>"
+                          data-price="<?= $product['price'] ?>">
+                      Add to Cart
                   </button>
-
-
-            </div>
+              </div>
+          <?php endforeach; ?>
         <?php endforeach; ?>
-      <?php endforeach; ?>
-    </section>
+      </section>
 
     <div class="cart">
       <h2>🛒 Your Cart</h2>
@@ -108,53 +114,56 @@ while ($row = $result->fetch_assoc()) {
     </div>
 
     <!-- Checkout Modal -->
-<div class="checkout-modal" id="checkoutModal">
-  <div class="checkout-content">
-    <span class="close-checkout">&times;</span>
-    <h2>Checkout</h2>
+  <div class="checkout-modal" id="checkoutModal">
+    <div class="checkout-content">
+      <span class="close-checkout">&times;</span>
+      <h2>Checkout</h2>
 
-    <form id="checkoutForm">
-      <h3>Customer Information</h3>
-      <label for="customerName">Name:</label>
-      <input type="text" id="customerName" name="customerName" required>
+      <form id="checkoutForm">
+        <h3>Customer Information</h3>
+        <label for="customerName">Name:</label>
+        <input type="text" id="customerName" name="customerName" required>
 
-      <label for="customerEmail">Email:</label>
-      <input type="email" id="customerEmail" name="customerEmail" required>
+        <label for="customerAddress">Address:</label>
+        <input type="text" id="customerAddress" name="customerAddress" required>
 
-      <label for="customerPhone">Phone:</label>
-      <input type="text" id="customerPhone" name="customerPhone" required>
+        <label for="customerPhone">Phone:</label>
+        <input type="text" id="customerPhone" name="customerPhone" required>
 
-      <h3>Order Summary</h3>
-      <ul class="checkout-items"></ul>
-      <p>Total: <span class="checkout-total">₱0.00</span></p>
+        <h3>Order Summary</h3>
+        <ul class="checkout-items"></ul>
+        <p>Total: <span class="checkout-total">₱0.00</span></p>
 
-      <h3>Payment Method</h3>
-      <select id="paymentMethod" name="paymentMethod" required>
-        <option value="">Select Payment</option>
-        <option value="cash">Cash</option>
-        <option value="gcash">GCash</option>
-        <option value="credit">Credit Card</option>
-      </select>
+        <h3>Payment Method</h3>
+        <select id="paymentMethod" name="paymentMethod" required>
+          <option value="">Select Payment</option>
+          <option value="cash">Cash</option>
+          <option value="gcash">GCash</option>
+          <option value="credit">Credit Card</option>
+        </select>
 
-      <button type="submit" class="checkout-submit">Confirm & Pay</button>
-    </form>
+        <button type="submit" class="checkout-submit">Confirm & Pay</button>
+      </form>
+    </div>
   </div>
-</div>
 
-    
+  <!-- Order Complete Notification -->
+  <div id="orderNotification" class="order-notification">
+    ✅ Order Complete! Thank you for your purchase.
+  </div>
 
   <button class="open-cart">🛒 View Cart</button>
     
 
   </div>
-
-        <!-- LOGIN MODAL -->
+   <!-- LOGIN MODAL -->
       <div class="modal" id="loginModal">
         <div class="modal-content">
             <span class="close" data-close="loginModal">&times;</span>
             <h2>Login</h2>
 
-            <form action="login.php" method="POST" class="modal-form">
+            <form action="auth.php" method="POST" class="modal-form">
+            <input type="hidden" name="action" value="login">
             <label>Email</label>
             <input type="email" name="email" required>
 
@@ -177,7 +186,8 @@ while ($row = $result->fetch_assoc()) {
             <span class="close" data-close="signupModal">&times;</span>
             <h2>Create Account</h2>
 
-            <form id="signupForm" action="register.php" method="POST" class="modal-form">
+            <form id="signupForm" action="auth.php" method="POST" class="modal-form">
+              <input type="hidden" name="action" value="register">
 
                 <label>Username</label>
                 <input type="text" name="username" placeholder="Enter your username" required>
@@ -215,9 +225,9 @@ while ($row = $result->fetch_assoc()) {
     <p>© 2025 CHOCOCRAVE | Indulge in Sweet Cravings</p>
   </footer>
 
-  <script src="script.js"></script>
+  
   <script src="login-signup_Modal.js"></script>
+  <script src="script.js"></script>
 
 </body>
 </html>
-

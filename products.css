@@ -1,3 +1,7 @@
+html{
+  scroll-behavior: smooth;
+}
+
 body {
   background-color: #fff7e6;
   color: #3a1f04;
@@ -8,26 +12,38 @@ body {
 
 }
 
-/* Navbar */
+/* ==========================================================
+   NAVBAR
+   ========================================================== */
 .navbar {
-  background-color: #f4c56a;
+  height: 120px;
+  background-color: #fbd07a;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 40px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 10px 20px;
 }
 
+
 .logo img {
-  width: 90px;
-  height: 90px;
+  width: 3rem;
+  height: 3rem;
   border-radius: 50%;
+  padding: 20px;
 }
 
 .nav-links a {
+  color: #4b2e05;
+  font-size: 20px;
   text-decoration: none;
-  color: #3a1f04;
+  margin: 0 15px;
   font-weight: 600;
-  margin: 0 10px;
+  transition: 0.3s;
+}
+
+.nav-links a:hover {
+  color: #8b5e00;
 }
 
 /* Header */
@@ -378,5 +394,26 @@ footer {
   margin-bottom: 5px;
 }
 
+
+.order-notification {
+  position: fixed;
+  bottom: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #28a745;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 16px;
+  box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
+  opacity: 0;
+  transition: all 0.4s ease-in-out;
+  z-index: 9999;
+}
+
+.order-notification.show {
+  bottom: 30px;
+  opacity: 1;
+}
 
 

@@ -6,7 +6,8 @@ const productSection = document.querySelector('.product-grid');
 // Hide all details and expand product grid
 function hideAllDetails() {
   detailsBoxes.forEach(box => box.style.display = 'none');
-  productDetailsContainer.style.display = 'none';
+  productDetailsContainer.style.display = 'none';  
+  productSection.style.width = '100%'; // restore full width
 }
 
 // Initially hide details
@@ -28,7 +29,17 @@ productBoxes.forEach(box => {
       productSection.style.width = '40%'; // shrink grid
     }
   });
+
+  // Close button inside each details box
+  document.querySelectorAll('.close-details').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation(); // prevent triggering other click events
+      hideAllDetails();
+    });
+  });
+  
 });
+
 
 // Click outside details to hide
 productDetailsContainer.addEventListener('click', e => {
@@ -185,19 +196,18 @@ checkoutForm.addEventListener('submit', e => {
   e.preventDefault();
 
   const customerName = document.getElementById('customerName').value;
-  const customerEmail = document.getElementById('customerEmail').value;
+  const customerAddress = document.getElementById('customerAddress').value; // Updated to address
   const customerPhone = document.getElementById('customerPhone').value;
   const paymentMethod = document.getElementById('paymentMethod').value;
 
   if (!paymentMethod) return alert('Please select a payment method.');
 
-  // Send checkout data to server
   fetch('checkout_process.php', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       customerName,
-      customerEmail,
+      customerAddress,
       customerPhone,
       paymentMethod
     })
@@ -205,11 +215,72 @@ checkoutForm.addEventListener('submit', e => {
   .then(res => res.json())
   .then(data => {
     if (data.status === 'success') {
-      alert('Order successfully placed! Thank you.');
-      cart = []; // clear local cart
+
+      // CLEAR CART & CLOSE MODAL
+      cart = [];
       updateCartUI();
       checkoutModal.style.display = 'none';
+
+      // ====== SHOW ORDER COMPLETE POPUP ======
+      const notification = document.createElement('div');
+      notification.classList.add('order-notification');
+      notification.textContent = '✅ Order Complete! Thank you for your purchase.';
+      document.body.appendChild(notification);
+
+      // Show popup with animation
+      setTimeout(() => notification.classList.add('show'), 50);
+
+      // Hide after 3 seconds
+      setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => document.body.removeChild(notification), 300);
+      }, 3000);
+
+    } else {
+      alert('⚠️ Something went wrong. Please try again.');
     }
-  });
+  })
+  .catch(err => console.error(err));
+});// Handle checkout submission
+checkoutForm.addEventListener('submit', e => {
+  e.preventDefault();
+
+  const customerName = document.getElementById('customerName').value;
+  const customerAddress = document.getElementById('customerAddress').value;
+  const customerPhone = document.getElementById('customerPhone').value;
+  const paymentMethod = document.getElementById('paymentMethod').value;
+
+  if (!paymentMethod) return alert('Please select a payment method.');
+
+  fetch('checkout_process.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ customerName, customerAddress, customerPhone, paymentMethod })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.status === 'success') {
+
+      // CLEAR CART & CLOSE MODAL
+      cart = [];
+      updateCartUI();
+      checkoutModal.style.display = 'none';
+
+      // SHOW NOTIFICATION (existing div)
+      const notification = document.getElementById('orderNotification');
+      notification.classList.add('show');
+
+      // Hide after 3s
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+  })
+  .catch(err => console.error(err));
 });
+
+
+
+
+
 
