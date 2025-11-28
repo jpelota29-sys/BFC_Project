@@ -1,19 +1,23 @@
+// ==============================
+// PRODUCT DETAILS TOGGLE
+// ==============================
+
 const productBoxes = document.querySelectorAll('.product-box');
 const detailsBoxes = document.querySelectorAll('.details-box');
 const productDetailsContainer = document.querySelector('.product-details');
 const productSection = document.querySelector('.product-grid');
 
-// Hide all details and expand product grid
+// Hide all details and reset layout
 function hideAllDetails() {
   detailsBoxes.forEach(box => box.style.display = 'none');
-  productDetailsContainer.style.display = 'none';  
-  productSection.style.width = '100%'; // restore full width
+  productDetailsContainer.style.display = 'none';
+  productSection.style.width = '100%';
 }
 
-// Initially hide details
+// Initial state
 hideAllDetails();
 
-// When a product is clicked
+// Click product → show details
 productBoxes.forEach(box => {
   box.addEventListener('click', e => {
     e.preventDefault();
@@ -26,36 +30,36 @@ productBoxes.forEach(box => {
       targetBox.style.display = 'flex';
       targetBox.style.flexDirection = 'column';
       productDetailsContainer.style.display = 'flex';
-      productSection.style.width = '40%'; // shrink grid
+      productSection.style.width = '40%';
     }
   });
-
-  // Close button inside each details box
-  document.querySelectorAll('.close-details').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.stopPropagation(); // prevent triggering other click events
-      hideAllDetails();
-    });
-  });
-  
 });
 
-
-// Click outside details to hide
-productDetailsContainer.addEventListener('click', e => {
-  if (e.target === productDetailsContainer) {
+// Close details
+document.querySelectorAll('.close-details').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
     hideAllDetails();
-  }
+  });
 });
 
-// Cart array to track client-side items
+// Click outside → hide
+productDetailsContainer.addEventListener('click', e => {
+  if (e.target === productDetailsContainer) hideAllDetails();
+});
+
+
+// ==============================
+// CART SYSTEM
+// ==============================
+
 let cart = [];
 const cartEl = document.querySelector('.cart');
 const cartItemsEl = document.querySelector('.cart-items');
 const cartTotalEl = document.querySelector('.total-price');
 const openCartBtn = document.querySelector('.open-cart');
 
-// Fetch cart from DB on page load
+// Load cart from DB
 function loadCart() {
   fetch('get_cart.php')
     .then(res => res.json())
@@ -87,13 +91,12 @@ function updateCartUI() {
 
   cartTotalEl.textContent = `₱${total.toFixed(2)}`;
 
-  // Remove button functionality
+  // Remove item
   document.querySelectorAll('.remove-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const idx = parseInt(btn.dataset.index);
+      const index = parseInt(btn.dataset.index);
       const productId = btn.dataset.id;
 
-      // Remove from DB
       fetch('remove_from_cart.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -102,8 +105,7 @@ function updateCartUI() {
       .then(res => res.json())
       .then(data => {
         if (data.status === 'success') {
-          // Remove from local cart array
-          cart.splice(idx, 1);
+          cart.splice(index, 1);
           updateCartUI();
         }
       });
@@ -111,14 +113,23 @@ function updateCartUI() {
   });
 }
 
-// Add to cart buttons
+
+// ==============================
+// ADD TO CART (LOGIN REQUIRED)
+// ==============================
+
 document.querySelectorAll('.add-to-cart').forEach(button => {
   button.addEventListener('click', () => {
+
+    if (!isLoggedIn) {
+      document.getElementById("loginModal").style.display = "flex";
+      return;
+    }
+
     const productId = button.dataset.id;
     const productName = button.dataset.name;
     const productPrice = parseFloat(button.dataset.price);
 
-    // Add to DB
     fetch('add_to_cart.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -127,16 +138,19 @@ document.querySelectorAll('.add-to-cart').forEach(button => {
     .then(res => res.json())
     .then(data => {
       if (data.status === 'success') {
-        // Update local cart array
         const existing = cart.find(item => item.id == productId);
         if (existing) {
           existing.quantity += 1;
         } else {
-          cart.push({ id: productId, name: productName, price: productPrice, quantity: 1 });
+          cart.push({
+            id: productId,
+            name: productName,
+            price: productPrice,
+            quantity: 1
+          });
         }
         updateCartUI();
 
-        // Show cart
         cartEl.style.display = 'block';
         setTimeout(() => cartEl.classList.add('open'), 50);
       }
@@ -144,11 +158,21 @@ document.querySelectorAll('.add-to-cart').forEach(button => {
   });
 });
 
-// Open cart manually
+
+// ==============================
+// OPEN CART (LOGIN REQUIRED)
+// ==============================
+
 openCartBtn.addEventListener('click', () => {
+  if (!isLoggedIn) {
+    document.getElementById("loginModal").style.display = "flex";
+    return;
+  }
+
   cartEl.style.display = 'block';
   setTimeout(() => cartEl.classList.add('open'), 50);
 });
+
 
 // Close cart
 document.querySelector('.close-cart').addEventListener('click', () => {
@@ -156,10 +180,15 @@ document.querySelector('.close-cart').addEventListener('click', () => {
   setTimeout(() => cartEl.style.display = 'none', 400);
 });
 
-// Load cart when page loads
+
+// Load cart on page start
 loadCart();
 
-// Checkout
+
+// ==============================
+// CHECKOUT SYSTEM
+// ==============================
+
 const checkoutModal = document.getElementById('checkoutModal');
 const checkoutForm = document.getElementById('checkoutForm');
 const checkoutItemsEl = checkoutForm.querySelector('.checkout-items');
@@ -170,107 +199,59 @@ const closeCheckoutBtn = document.querySelector('.close-checkout');
 function openCheckout() {
   checkoutItemsEl.innerHTML = '';
   let total = 0;
+
   cart.forEach(item => {
     const li = document.createElement('li');
     li.textContent = `${item.name} - ₱${(item.price * item.quantity).toFixed(2)} (x${item.quantity})`;
     checkoutItemsEl.appendChild(li);
     total += item.price * item.quantity;
   });
+
   checkoutTotalEl.textContent = `₱${total.toFixed(2)}`;
   checkoutModal.style.display = 'flex';
 }
 
-// Open modal
+// Open checkout modal
 checkoutBtn.addEventListener('click', openCheckout);
 
-// Close modal
+// Close checkout
 closeCheckoutBtn.addEventListener('click', () => {
   checkoutModal.style.display = 'none';
 });
+
 window.addEventListener('click', e => {
   if (e.target === checkoutModal) checkoutModal.style.display = 'none';
 });
 
-// Handle checkout submission
+// Submit checkout
 checkoutForm.addEventListener('submit', e => {
   e.preventDefault();
 
-  const customerName = document.getElementById('customerName').value;
-  const customerAddress = document.getElementById('customerAddress').value; // Updated to address
-  const customerPhone = document.getElementById('customerPhone').value;
-  const paymentMethod = document.getElementById('paymentMethod').value;
+  const data = {
+    customerName: document.getElementById('customerName').value,
+    customerAddress: document.getElementById('customerAddress').value,
+    customerPhone: document.getElementById('customerPhone').value,
+    paymentMethod: document.getElementById('paymentMethod').value
+  };
 
-  if (!paymentMethod) return alert('Please select a payment method.');
+  if (!data.paymentMethod) return alert("Please choose a payment method.");
 
   fetch('checkout_process.php', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      customerName,
-      customerAddress,
-      customerPhone,
-      paymentMethod
-    })
+    body: JSON.stringify(data)
   })
   .then(res => res.json())
   .then(data => {
     if (data.status === 'success') {
 
-      // CLEAR CART & CLOSE MODAL
       cart = [];
       updateCartUI();
       checkoutModal.style.display = 'none';
 
-      // ====== SHOW ORDER COMPLETE POPUP ======
-      const notification = document.createElement('div');
-      notification.classList.add('order-notification');
-      notification.textContent = '✅ Order Complete! Thank you for your purchase.';
-      document.body.appendChild(notification);
-
-      // Show popup with animation
-      setTimeout(() => notification.classList.add('show'), 50);
-
-      // Hide after 3 seconds
-      setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => document.body.removeChild(notification), 300);
-      }, 3000);
-
-    } else {
-      alert('⚠️ Something went wrong. Please try again.');
-    }
-  })
-  .catch(err => console.error(err));
-});// Handle checkout submission
-checkoutForm.addEventListener('submit', e => {
-  e.preventDefault();
-
-  const customerName = document.getElementById('customerName').value;
-  const customerAddress = document.getElementById('customerAddress').value;
-  const customerPhone = document.getElementById('customerPhone').value;
-  const paymentMethod = document.getElementById('paymentMethod').value;
-
-  if (!paymentMethod) return alert('Please select a payment method.');
-
-  fetch('checkout_process.php', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ customerName, customerAddress, customerPhone, paymentMethod })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.status === 'success') {
-
-      // CLEAR CART & CLOSE MODAL
-      cart = [];
-      updateCartUI();
-      checkoutModal.style.display = 'none';
-
-      // SHOW NOTIFICATION (existing div)
       const notification = document.getElementById('orderNotification');
       notification.classList.add('show');
 
-      // Hide after 3s
       setTimeout(() => {
         notification.classList.remove('show');
       }, 3000);
@@ -278,9 +259,3 @@ checkoutForm.addEventListener('submit', e => {
   })
   .catch(err => console.error(err));
 });
-
-
-
-
-
-

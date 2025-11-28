@@ -22,10 +22,12 @@ while ($row = $result->fetch_assoc()) {
 <?php
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    echo "<script>alert('Please login first.'); window.location='index.php';</script>";
-    exit;
+    $isLoggedIn = false;
+} else {
+    $isLoggedIn = true;
 }
 ?>
+
 
 
 <!DOCTYPE html>
@@ -226,8 +228,15 @@ if (!isset($_SESSION['user_id'])) {
   </footer>
 
   
+  <script>
+    const IS_LOGGED_IN = <?= $isLoggedIn ? 'true' : 'false' ?>;
+  </script>
+  
   <script src="login-signup_Modal.js"></script>
   <script src="script.js"></script>
+
+
+
 
 </body>
 </html>
