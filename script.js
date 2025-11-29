@@ -1,23 +1,18 @@
-// ==============================
-// PRODUCT DETAILS TOGGLE
-// ==============================
-
 const productBoxes = document.querySelectorAll('.product-box');
 const detailsBoxes = document.querySelectorAll('.details-box');
 const productDetailsContainer = document.querySelector('.product-details');
 const productSection = document.querySelector('.product-grid');
 
-// Hide all details and reset layout
+// Hide all details and expand product grid
 function hideAllDetails() {
   detailsBoxes.forEach(box => box.style.display = 'none');
   productDetailsContainer.style.display = 'none';
-  productSection.style.width = '100%';
 }
 
-// Initial state
+// Initially hide details
 hideAllDetails();
 
-// Click product → show details
+// When a product is clicked
 productBoxes.forEach(box => {
   box.addEventListener('click', e => {
     e.preventDefault();
@@ -30,36 +25,26 @@ productBoxes.forEach(box => {
       targetBox.style.display = 'flex';
       targetBox.style.flexDirection = 'column';
       productDetailsContainer.style.display = 'flex';
-      productSection.style.width = '40%';
+      productSection.style.width = '40%'; // shrink grid
     }
   });
 });
 
-// Close details
-document.querySelectorAll('.close-details').forEach(btn => {
-  btn.addEventListener('click', e => {
-    e.stopPropagation();
-    hideAllDetails();
-  });
-});
-
-// Click outside → hide
+// Click outside details to hide
 productDetailsContainer.addEventListener('click', e => {
-  if (e.target === productDetailsContainer) hideAllDetails();
+  if (e.target === productDetailsContainer) {
+    hideAllDetails();
+  }
 });
 
-
-// ==============================
-// CART SYSTEM
-// ==============================
-
+// Cart array to track client-side items
 let cart = [];
 const cartEl = document.querySelector('.cart');
 const cartItemsEl = document.querySelector('.cart-items');
 const cartTotalEl = document.querySelector('.total-price');
 const openCartBtn = document.querySelector('.open-cart');
 
-// Load cart from DB
+// Fetch cart from DB on page load
 function loadCart() {
   fetch('get_cart.php')
     .then(res => res.json())
@@ -91,12 +76,13 @@ function updateCartUI() {
 
   cartTotalEl.textContent = `₱${total.toFixed(2)}`;
 
-  // Remove item
+  // Remove button functionality
   document.querySelectorAll('.remove-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const index = parseInt(btn.dataset.index);
+      const idx = parseInt(btn.dataset.index);
       const productId = btn.dataset.id;
 
+      // Remove from DB
       fetch('remove_from_cart.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -105,7 +91,8 @@ function updateCartUI() {
       .then(res => res.json())
       .then(data => {
         if (data.status === 'success') {
-          cart.splice(index, 1);
+          // Remove from local cart array
+          cart.splice(idx, 1);
           updateCartUI();
         }
       });
@@ -113,23 +100,14 @@ function updateCartUI() {
   });
 }
 
-
-// ==============================
-// ADD TO CART (LOGIN REQUIRED)
-// ==============================
-
+// Add to cart buttons
 document.querySelectorAll('.add-to-cart').forEach(button => {
   button.addEventListener('click', () => {
-
-    if (!isLoggedIn) {
-      document.getElementById("loginModal").style.display = "flex";
-      return;
-    }
-
     const productId = button.dataset.id;
     const productName = button.dataset.name;
     const productPrice = parseFloat(button.dataset.price);
 
+    // Add to DB
     fetch('add_to_cart.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -138,19 +116,16 @@ document.querySelectorAll('.add-to-cart').forEach(button => {
     .then(res => res.json())
     .then(data => {
       if (data.status === 'success') {
+        // Update local cart array
         const existing = cart.find(item => item.id == productId);
         if (existing) {
           existing.quantity += 1;
         } else {
-          cart.push({
-            id: productId,
-            name: productName,
-            price: productPrice,
-            quantity: 1
-          });
+          cart.push({ id: productId, name: productName, price: productPrice, quantity: 1 });
         }
         updateCartUI();
 
+        // Show cart
         cartEl.style.display = 'block';
         setTimeout(() => cartEl.classList.add('open'), 50);
       }
@@ -158,21 +133,11 @@ document.querySelectorAll('.add-to-cart').forEach(button => {
   });
 });
 
-
-// ==============================
-// OPEN CART (LOGIN REQUIRED)
-// ==============================
-
+// Open cart manually
 openCartBtn.addEventListener('click', () => {
-  if (!isLoggedIn) {
-    document.getElementById("loginModal").style.display = "flex";
-    return;
-  }
-
   cartEl.style.display = 'block';
   setTimeout(() => cartEl.classList.add('open'), 50);
 });
-
 
 // Close cart
 document.querySelector('.close-cart').addEventListener('click', () => {
@@ -180,78 +145,39 @@ document.querySelector('.close-cart').addEventListener('click', () => {
   setTimeout(() => cartEl.style.display = 'none', 400);
 });
 
-
-// Load cart on page start
+// Load cart when page loads
 loadCart();
 
-
-// ==============================
-// CHECKOUT SYSTEM
-// ==============================
-
-const checkoutModal = document.getElementById('checkoutModal');
-const checkoutForm = document.getElementById('checkoutForm');
-const checkoutItemsEl = checkoutForm.querySelector('.checkout-items');
-const checkoutTotalEl = checkoutForm.querySelector('.checkout-total');
-const checkoutBtn = document.querySelector('.checkout-btn');
-const closeCheckoutBtn = document.querySelector('.close-checkout');
-
-function openCheckout() {
-  checkoutItemsEl.innerHTML = '';
-  let total = 0;
-
-  cart.forEach(item => {
-    const li = document.createElement('li');
-    li.textContent = `${item.name} - ₱${(item.price * item.quantity).toFixed(2)} (x${item.quantity})`;
-    checkoutItemsEl.appendChild(li);
-    total += item.price * item.quantity;
-  });
-
-  checkoutTotalEl.textContent = `₱${total.toFixed(2)}`;
-  checkoutModal.style.display = 'flex';
-}
-
-// Open checkout modal
-checkoutBtn.addEventListener('click', openCheckout);
-
-// Close checkout
-closeCheckoutBtn.addEventListener('click', () => {
-  checkoutModal.style.display = 'none';
-});
-
-window.addEventListener('click', e => {
-  if (e.target === checkoutModal) checkoutModal.style.display = 'none';
-});
-
-// Submit checkout
+// Handle checkout submission
 checkoutForm.addEventListener('submit', e => {
   e.preventDefault();
 
-  const data = {
-    customerName: document.getElementById('customerName').value,
-    customerAddress: document.getElementById('customerAddress').value,
-    customerPhone: document.getElementById('customerPhone').value,
-    paymentMethod: document.getElementById('paymentMethod').value
-  };
+  const customerName = document.getElementById('customerName').value;
+  const customerAddress = document.getElementById('customerAddress').value;
+  const customerPhone = document.getElementById('customerPhone').value;
+  const paymentMethod = document.getElementById('paymentMethod').value;
 
-  if (!data.paymentMethod) return alert("Please choose a payment method.");
+  if (!paymentMethod) return alert('Please select a payment method.');
 
   fetch('checkout_process.php', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
+    body: JSON.stringify({ customerName, customerAddress, customerPhone, paymentMethod })
   })
   .then(res => res.json())
   .then(data => {
     if (data.status === 'success') {
 
+      // CLEAR CART & CLOSE MODAL
       cart = [];
       updateCartUI();
       checkoutModal.style.display = 'none';
 
+      // SHOW NOTIFICATION (existing div)
       const notification = document.getElementById('orderNotification');
       notification.classList.add('show');
 
+      // Hide after 3s
       setTimeout(() => {
         notification.classList.remove('show');
       }, 3000);
@@ -259,3 +185,36 @@ checkoutForm.addEventListener('submit', e => {
   })
   .catch(err => console.error(err));
 });
+
+// SELECT MODAL
+const checkoutBtn = document.querySelector('.checkout-btn');
+const checkoutModal = document.getElementById('checkoutModal');
+const closeCheckoutBtn = document.querySelector('.close-checkout');
+const checkoutItemsEl = document.querySelector('.checkout-items');
+const checkoutTotalEl = document.querySelector('.checkout-total');
+
+// OPEN CHECKOUT MODAL
+checkoutBtn.addEventListener('click', () => {
+    if (cart.length === 0) return alert("Your cart is empty!");
+
+    checkoutItemsEl.innerHTML = "";
+    let total = 0;
+
+    cart.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = `${item.name} - ₱${(item.price * item.quantity).toFixed(2)} (x${item.quantity})`;
+        checkoutItemsEl.appendChild(li);
+        total += item.price * item.quantity;
+    });
+
+    checkoutTotalEl.textContent = `₱${total.toFixed(2)}`;
+    checkoutModal.style.display = 'flex';  // <-- SHOW MODAL
+});
+
+// CLOSE CHECKOUT MODAL
+closeCheckoutBtn.addEventListener('click', () => {
+    checkoutModal.style.display = 'none';
+});
+
+
+
